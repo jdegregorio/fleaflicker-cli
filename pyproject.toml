@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fleaflicker-cli"
+version = "0.1.0"
+description = "A CLI for the Fleaflicker fantasy football API"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+dependencies = [
+    "typer>=0.12",
+    "rich",
+    "requests",
+]
+
+[project.scripts]
+fleaflicker = "fleaflicker_cli.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/fleaflicker_cli"]
+
+[tool.ruff]
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "ruff",
+    "responses",
+]
