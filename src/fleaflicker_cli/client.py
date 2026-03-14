@@ -2,7 +2,7 @@
 
 import requests
 
-from fleaflicker_cli.models import DraftPick, Player
+from fleaflicker_cli.models import DraftPick, Player, TeamStanding
 
 BASE_URL = "https://www.fleaflicker.com/api"
 
@@ -82,6 +82,40 @@ class FleaflickerClient:
                 )
             )
         return picks
+
+    @staticmethod
+    def parse_standings(standings_payload: dict) -> list[TeamStanding]:
+        """Parse a FetchLeagueStandings response into TeamStanding objects."""
+        teams: list[TeamStanding] = []
+        for division in standings_payload.get("divisions", []):
+            div_name = division.get("name", "")
+            for team in division.get("teams", []):
+                record = team.get("recordOverall", {})
+                owners = team.get("owners", [])
+                owner_names = [
+                    o.get("displayName", "")
+                    for o in owners
+                    if o.get("displayName")
+                ]
+                counts = team.get("newItemCounts", {})
+                teams.append(
+                    TeamStanding(
+                        team_id=team.get("id", 0),
+                        team_name=team.get("name", ""),
+                        division=div_name,
+                        wins=record.get("wins", 0),
+                        losses=record.get("losses", 0),
+                        points_for=team.get("pointsFor", {}).get("formatted", "0"),
+                        points_against=team.get(
+                            "pointsAgainst", {},
+                        ).get("formatted", "0"),
+                        draft_position=team.get("draftPosition"),
+                        owner_display_names=owner_names,
+                        activity_unread=counts.get("activity", 0),
+                        trades_pending=counts.get("trades", 0),
+                    )
+                )
+        return teams
 
     @staticmethod
     def find_team_standing(standings_payload: dict, team_id: int) -> dict:

@@ -81,6 +81,38 @@ SAMPLE_STANDINGS = {
     ]
 }
 
+SAMPLE_STANDINGS_RICH = {
+    "divisions": [
+        {
+            "name": "Gow Football Conference",
+            "teams": [
+                {
+                    "id": 100,
+                    "name": "Seattle Swell (JFB)",
+                    "recordOverall": {"wins": 8, "losses": 5},
+                    "pointsFor": {"formatted": "1523.4"},
+                    "pointsAgainst": {"formatted": "1401.2"},
+                    "draftPosition": 10,
+                    "owners": [{"displayName": "JoeDeGregorio"}],
+                    "newItemCounts": {"activity": 86, "trades": 1},
+                },
+            ],
+        },
+        {
+            "name": "Carter Football Conference",
+            "teams": [
+                {
+                    "id": 200,
+                    "name": "Some Other Team",
+                    "recordOverall": {"wins": 3, "losses": 10},
+                    "pointsFor": {"formatted": "900.1"},
+                    "pointsAgainst": {"formatted": "1600.5"},
+                },
+            ],
+        },
+    ]
+}
+
 
 class TestParseRosterPlayers:
     def test_parses_valid_players(self):
@@ -123,6 +155,44 @@ class TestParseTeamPicks:
     def test_missing_slot_field(self):
         picks = FleaflickerClient.parse_team_picks(SAMPLE_PICKS)
         assert picks[2].slot is None  # third pick has no "slot" in its slot dict
+
+
+class TestParseStandings:
+    def test_parses_teams(self):
+        teams = FleaflickerClient.parse_standings(SAMPLE_STANDINGS_RICH)
+        assert len(teams) == 2
+
+    def test_basic_fields(self):
+        teams = FleaflickerClient.parse_standings(SAMPLE_STANDINGS_RICH)
+        t = teams[0]
+        assert t.team_id == 100
+        assert t.team_name == "Seattle Swell (JFB)"
+        assert t.division == "Gow Football Conference"
+        assert t.wins == 8
+        assert t.losses == 5
+        assert t.points_for == "1523.4"
+        assert t.points_against == "1401.2"
+        assert t.draft_position == 10
+
+    def test_owner_names(self):
+        teams = FleaflickerClient.parse_standings(SAMPLE_STANDINGS_RICH)
+        assert teams[0].owner_display_names == ["JoeDeGregorio"]
+
+    def test_activity_counts(self):
+        teams = FleaflickerClient.parse_standings(SAMPLE_STANDINGS_RICH)
+        assert teams[0].activity_unread == 86
+        assert teams[0].trades_pending == 1
+
+    def test_missing_optional_fields(self):
+        teams = FleaflickerClient.parse_standings(SAMPLE_STANDINGS_RICH)
+        t = teams[1]
+        assert t.draft_position is None
+        assert t.owner_display_names == []
+        assert t.activity_unread == 0
+        assert t.trades_pending == 0
+
+    def test_empty_payload(self):
+        assert FleaflickerClient.parse_standings({}) == []
 
 
 class TestFindTeamStanding:

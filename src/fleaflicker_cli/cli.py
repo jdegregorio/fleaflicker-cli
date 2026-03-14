@@ -1,6 +1,7 @@
 """Typer CLI for the Fleaflicker fantasy football API."""
 
 import json
+from dataclasses import asdict
 from enum import StrEnum
 from typing import Annotated
 
@@ -25,6 +26,7 @@ FORMAT_OPT = typer.Option("--format", help="Output format")
 class OutputFormat(StrEnum):
     json = "json"
     table = "table"
+    normalized = "normalized"
 
 
 def _print_json(data) -> None:
@@ -53,7 +55,10 @@ def standings(
     client = FleaflickerClient()
     data = client.fetch_standings(league_id)
 
-    if fmt == OutputFormat.table:
+    if fmt == OutputFormat.normalized:
+        teams = client.parse_standings(data)
+        _print_json([asdict(t) for t in teams])
+    elif fmt == OutputFormat.table:
         table = Table(title="League Standings")
         table.add_column("Division", style="bold")
         table.add_column("Team")
@@ -90,7 +95,10 @@ def roster(
     client = FleaflickerClient()
     data = client.fetch_roster(league_id, tid)
 
-    if fmt == OutputFormat.table:
+    if fmt == OutputFormat.normalized:
+        players = client.parse_roster_players(data)
+        _print_json([asdict(p) for p in players])
+    elif fmt == OutputFormat.table:
         players = client.parse_roster_players(data)
         table = Table(title="Team Roster")
         table.add_column("Name")
@@ -120,7 +128,10 @@ def picks(
     client = FleaflickerClient()
     data = client.fetch_team_picks(league_id, tid)
 
-    if fmt == OutputFormat.table:
+    if fmt == OutputFormat.normalized:
+        draft_picks = client.parse_team_picks(data)
+        _print_json([asdict(dp) for dp in draft_picks])
+    elif fmt == OutputFormat.table:
         draft_picks = client.parse_team_picks(data)
         table = Table(title="Draft Picks")
         table.add_column("Season", justify="right")

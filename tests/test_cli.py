@@ -23,7 +23,9 @@ def test_help():
 def test_standings_help():
     result = runner.invoke(app, ["standings", "--help"])
     assert result.exit_code == 0
-    assert "--league-id" in strip_ansi(result.output)
+    output = strip_ansi(result.output)
+    assert "--league-id" in output
+    assert "normalized" in output
 
 
 def test_roster_help():

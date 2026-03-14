@@ -1,6 +1,6 @@
 """Data models for Fleaflicker API responses."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -23,3 +23,20 @@ class DraftPick:
     original_owner: str = "Unknown"
     current_owner: str = "Unknown"
     lost: bool = False
+
+
+@dataclass
+class TeamStanding:
+    """A team's standing in the league."""
+
+    team_id: int
+    team_name: str
+    division: str = ""
+    wins: int = 0
+    losses: int = 0
+    points_for: str = "0"
+    points_against: str = "0"
+    draft_position: int | None = None
+    owner_display_names: list[str] = field(default_factory=list)
+    activity_unread: int = 0
+    trades_pending: int = 0

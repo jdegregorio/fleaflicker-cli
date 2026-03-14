@@ -25,6 +25,7 @@ Every command requires `--league-id`. Commands that target a specific team also 
 ```bash
 fleaflicker standings --league-id 12345
 fleaflicker standings --league-id 12345 --format table
+fleaflicker standings --league-id 12345 --format normalized
 ```
 
 ### Team roster
@@ -32,6 +33,7 @@ fleaflicker standings --league-id 12345 --format table
 ```bash
 fleaflicker roster --league-id 12345 --team-id 6789
 fleaflicker roster --league-id 12345 --team-id 6789 --format table
+fleaflicker roster --league-id 12345 --team-id 6789 --format normalized
 ```
 
 ### Draft picks
@@ -39,6 +41,7 @@ fleaflicker roster --league-id 12345 --team-id 6789 --format table
 ```bash
 fleaflicker picks --league-id 12345 --team-id 6789
 fleaflicker picks --league-id 12345 --team-id 6789 --format table
+fleaflicker picks --league-id 12345 --team-id 6789 --format normalized
 ```
 
 ### All league rosters
@@ -54,9 +57,61 @@ fleaflicker raw FetchLeagueStandings --league-id 12345
 fleaflicker raw FetchRoster --league-id 12345 --team-id 6789
 ```
 
-## Output
+## Output Formats
 
-All commands output JSON by default. Pass `--format table` for a human-readable Rich table.
+| Format | Description |
+|--------|-------------|
+| `json` (default) | Raw API response |
+| `table` | Human-readable Rich table |
+| `normalized` | Parsed, flat JSON for downstream workflows |
+
+### Normalized roster schema
+
+```json
+[
+  {
+    "name": "Justin Herbert",
+    "position": "QB",
+    "nfl_team": "LAC",
+    "fleaflicker_id": "15516"
+  }
+]
+```
+
+### Normalized picks schema
+
+```json
+[
+  {
+    "season": 2026,
+    "round": 1,
+    "slot": 10,
+    "original_owner": "Team Alpha",
+    "current_owner": "Team Beta",
+    "lost": true
+  }
+]
+```
+
+### Normalized standings schema
+
+```json
+[
+  {
+    "team_id": 1073671,
+    "team_name": "Seattle Swell (JFB)",
+    "division": "Gow Football Conference",
+    "wins": 8,
+    "losses": 5,
+    "points_for": "1523.4",
+    "points_against": "1401.2",
+    "draft_position": 10,
+    "owner_display_names": ["JoeDeGregorio"],
+    "activity_unread": 86,
+    "trades_pending": 1
+  }
+]
+```
 
 ## Finding your IDs
 
